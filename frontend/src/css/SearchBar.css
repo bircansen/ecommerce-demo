@@ -1,0 +1,89 @@
+/* SearchBar.css */
+
+/* Dropdown container */
+.search-dropdown {
+  position: absolute;
+  top: 100%; /* Arama çubuğunun hemen altı */
+  left: 0;
+  width: 100%;
+  background: #fff; /* Açık arka plan */
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+  max-height: 350px;
+  overflow-y: auto;
+  padding: 8px 0;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Her bir ürün satırı */
+.search-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Metin alanı (title + price) */
+.search-item-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.search-item-title {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.search-item-price {
+  font-size: 0.85rem;
+  color: #777;
+  margin-top: 2px;
+}
+
+/* Ürün resmi */
+.search-item-img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  margin-left: 12px;
+  border-radius: 6px;
+}
+
+/* Yükleme göstergesi */
+.search-loading {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+/* Arama sonucu yoksa */
+.search-empty {
+  text-align: center;
+  color: #999;
+  font-size: 0.85rem;
+  padding: 12px 0;
+}
+
+/* Scrollbar özelleştirme (opsiyonel) */
+.search-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.search-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}

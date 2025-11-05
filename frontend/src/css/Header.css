@@ -1,0 +1,173 @@
+.header-wrapper {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  background-color: #ffffff;
+  transition: background-color 0.3s, color 0.3s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.header-wrapper.dark {
+  background-color: #1e1e1e;
+  color: #fff;
+}
+
+.header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  height: 64px;
+}
+
+/* Sol Menü */
+.nav-left {
+  display: flex;
+  gap: 25px;
+}
+
+.nav-left a {
+  text-decoration: none;
+  font-weight: 500;
+  color: inherit;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.nav-left a::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  bottom: -3px;
+  left: 0;
+  background-color: #1976d2;
+  transition: width 0.3s;
+}
+
+.nav-left a:hover::after {
+  width: 100%;
+}
+
+/* Arama Çubuğu */
+.nav-search {
+  position: relative;
+  width: 400px;
+  margin: 0 20px;
+}
+
+/* === Arama Sonuç Dropdown === */
+.search-dropdown {
+  position: absolute;
+  top: 42px;
+  width: 100%;
+  border-radius: 8px;
+  max-height: 350px;
+  overflow-y: auto;
+  z-index: 2000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* Gündüz */
+.search-dropdown.light {
+  background-color: #ffffff;
+  color: #222;
+  border: 1px solid #ddd;
+}
+
+/* Gece */
+.search-dropdown.dark {
+  background-color: #1e1e1e;
+  color: #f1f1f1;
+  border: 1px solid #333;
+}
+
+/* Arama sonucu item */
+.search-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.search-dropdown.dark .search-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Metin kısmı */
+.search-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.search-item-title {
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.search-item-price {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* Görsel kısmı (sağda) */
+.search-item-img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  margin-left: 10px;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+/* Sağ Menü */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-right .MuiIconButton-root {
+  color: inherit;
+  transition: color 0.2s;
+}
+
+.nav-right .MuiIconButton-root:hover {
+  color: #1976d2;
+}
+
+.header-btn {
+  text-transform: none;
+  color: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.header-btn:hover {
+  color: #1976d2;
+}
+
+.MuiAvatar-root {
+  background-color: #1976d2 !important;
+  color: white !important;
+  font-weight: bold;
+}
+

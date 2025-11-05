@@ -1,0 +1,116 @@
+/* Sepet genel alanı */
+.basket-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+/* Her ürün kartı */
+.basket-item {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  align-items: center;
+  gap: 12px;
+
+  background: var(--mui-palette-background-paper, #fff);
+  padding: 12px;
+  border-radius: 14px;
+
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  overflow: hidden;       /* 🔥 Taşmaları keser */
+}
+
+/* Ürün resmi */
+.basket-img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px;
+}
+
+/* Ürün bilgi alanı */
+.basket-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;             /* 🔥 Yazı taşmasını engeller */
+}
+
+/* Ürün başlığı */
+.basket-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;          /* 🔥 Uzamasın */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Fiyat */
+.basket-price {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* Sağdaki buton alanı */
+.basket-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Arttır/Azalt butonları */
+.basket-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: bold;
+  cursor: pointer;
+
+  border: none;
+  background: 
+#425359;
+  transition: all 0.25s ease;
+}
+
+.basket-btn:hover {
+  background: #cfcfcf;
+}
+
+/* Ürün silme */
+.basket-delete {
+  background: #e53935;
+  color: white;
+}
+
+.basket-delete:hover {
+  background: #d32f2f;
+}
+
+/* Miktar gösterimi */
+.basket-quantity {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Toplam fiyat Kartı */
+.basket-total {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--mui-palette-background-paper, #fff);
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.basket-total button {
+  margin-top: 10px;
+}
