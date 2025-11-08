@@ -1,11 +1,16 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  addToBasket,
-  decreaseQuantity,
-  removeFromBasket,
-  clearBasket,
+  addToBasketLocal as addLocal,
+  decreaseQuantityLocal as decLocal,
+  removeFromBasketLocal as removeLocal,
+  clearBasketLocal as clearLocal,
+  addToBasketServer,
+  decreaseQuantityServer,
+  removeFromBasketServer,
+  clearBasketServer
 } from '../redux/BasketSlice';
+
 import {
   Box,
   Typography,
@@ -16,37 +21,166 @@ import {
   Badge,
   useTheme,
 } from '@mui/material';
-import { Link } from 'react-router-dom';
 
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useNavigate } from "react-router-dom";   // ✅ EKLENDİ
+import { useNavigate } from "react-router-dom";
 
 function BasketComp() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();                // ✅ EKLENDİ
+  const navigate = useNavigate();
   const theme = useTheme();
 
-  const addedToBasket = useSelector((store) => store.basket.addedToBasket || []);
-  const totalItems = addedToBasket.reduce((acc, item) => acc + item.quantity, 0);
-  const totalPrice = addedToBasket.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const user = useSelector((store) => store.user?.user);
+  const basketList = useSelector((store) => store.basket.addedToBasket || []);
 
-  const handleClearBasket = () => dispatch(clearBasket());
+  // ======= Helper: productId =======
+  const getProductId = (item) => {
+    if (!item) return null;
+    if (item.productId && typeof item.productId === "object") {
+      return item.productId._id || item.productId.id || null;
+    }
+    return item.productId || item.id || item._id || null;
+  };
 
+  // ======= Helper: title (Favorites tarzı formatla uyumlu) =======
+  const getTitle = (item) => {
+    if (!item) return "";
+    return (
+      item.title ||
+      item.name ||
+      item.productId?.title ||
+      item.productId?.name ||
+      item.productId?.productTitle ||
+      ""
+    );
+  };
+
+  // ======= Helper: image (Favorites tarzı formatla uyumlu) =======
   const getImageSrc = (item) => {
     if (!item) return '/placeholder.png';
+
+    // Direkt image
     if (item.image) return item.image;
+
+    // images array
     if (Array.isArray(item.images) && item.images.length > 0) return item.images[0];
+
+    // productId populate içinden
+    if (item.productId && typeof item.productId === "object") {
+      if (item.productId.image) return item.productId.image;
+      if (Array.isArray(item.productId.images) && item.productId.images.length > 0)
+        return item.productId.images[0];
+      // bazı backendlere göre farklı alanlar
+      if (item.productId.imagesJson) {
+        try {
+          const arr = JSON.parse(item.productId.imagesJson);
+          if (Array.isArray(arr) && arr.length) return arr[0];
+        } catch {}
+      }
+    }
+
     return '/placeholder.png';
   };
 
+  // ======= Helper: price (çoklu fallback — Favorites ile uyumlu) =======
+  const getPrice = (item) => {
+    if (!item) return 0;
+
+    // 1) doğrudan item.price (string veya number)
+    if (item.price !== undefined && item.price !== null) {
+      const n = Number(item.price);
+      if (!Number.isNaN(n)) return n;
+    }
+
+    // 2) productId içindeki yaygın alanlar
+    const p = item.productId;
+    if (p && typeof p === "object") {
+      // birkaç yaygın alternatif:
+      const candidates = [
+        p.price,
+        p.current_price,
+        p.price_current,
+        p.priceValue,
+        p.price_value,
+        p.amount,
+        p.raw_price,
+        p.price?.value,
+        p.price?.amount,
+      ];
+
+      for (const c of candidates) {
+        if (c !== undefined && c !== null) {
+          const n = Number(c);
+          if (!Number.isNaN(n)) return n;
+        }
+      }
+    }
+
+    // 3) diğer olası yerler (ör. nested object)
+    if (item.priceDetails && typeof item.priceDetails === "object") {
+      const n = Number(item.priceDetails.amount ?? item.priceDetails.value);
+      if (!Number.isNaN(n)) return n;
+    }
+
+    // fallback
+    return 0;
+  };
+
+  // ======= totals (NaN'ı engellemek için Number güvenli) =======
+  const totalItems = basketList.reduce((acc, item) => acc + (Number(item.quantity) || 0), 0);
+  const totalPrice = basketList.reduce((acc, item) => acc + getPrice(item) * (Number(item.quantity) || 0), 0);
+
+  // ======= Handlers (hiçbirini değiştirmedim, sadece productId kullandım) =======
+  const handleAdd = (item) => {
+    const productId = getProductId(item);
+    if (!productId) return;
+
+    if (user?._id) {
+      dispatch(addToBasketServer({ userId: user._id, productId }));
+    } else {
+      dispatch(addLocal(item));
+    }
+  };
+
+  const handleDecrease = (item) => {
+    const productId = getProductId(item);
+    if (!productId) return;
+
+    if (user?._id) {
+      dispatch(decreaseQuantityServer({ userId: user._id, productId }));
+    } else {
+      dispatch(decLocal(item));
+    }
+  };
+
+  const handleRemove = (item) => {
+    const productId = getProductId(item);
+    if (!productId) return;
+
+    if (user?._id) {
+      dispatch(removeFromBasketServer({ userId: user._id, productId }));
+    } else {
+      dispatch(removeLocal(item));
+    }
+  };
+
+  const handleClear = () => {
+    if (user?._id) {
+      dispatch(clearBasketServer(user._id));
+    } else {
+      dispatch(clearLocal());
+    }
+  };
+
   const goToProduct = (item) => {
-    const productId = item._id || item.id || item.asin;   // ✅ doğru ürün ID’si
+    const productId = getProductId(item);
     if (productId) navigate(`/product/${productId}`);
   };
 
+  // ======= Render (UI'ya dokunulmadı, sadece getter'lar kullanıldı) =======
   return (
     <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -58,15 +192,15 @@ function BasketComp() {
         </Badge>
       </Box>
 
-      {addedToBasket.length === 0 ? (
+      {basketList.length === 0 ? (
         <Typography sx={{ mt: 4 }} color={theme.palette.text.secondary}>
           Sepetiniz boş.
         </Typography>
       ) : (
         <>
-          {addedToBasket.map((item) => (
+          {basketList.map((item) => (
             <Paper
-              key={item._id || item.id}
+              key={getProductId(item) ?? JSON.stringify(item)}
               elevation={3}
               sx={{
                 display: 'flex',
@@ -79,7 +213,6 @@ function BasketComp() {
                 color: theme.palette.text.primary,
               }}
             >
-              {/* ✅ Sol tarafı tıklanabilir yaptık */}
               <Box
                 onClick={() => goToProduct(item)}
                 sx={{
@@ -89,12 +222,12 @@ function BasketComp() {
                   minWidth: 0,
                   flex: 1,
                   cursor: "pointer",
-                  "&:hover": { opacity: 0.85 }, // küçük hover efekti
+                  "&:hover": { opacity: 0.85 },
                 }}
               >
                 <img
                   src={getImageSrc(item)}
-                  alt={item.title}
+                  alt={getTitle(item)}
                   style={{
                     width: 70,
                     height: 70,
@@ -111,28 +244,27 @@ function BasketComp() {
                     noWrap
                     sx={{ maxWidth: 160 }}
                   >
-                    {item.title}
+                    {getTitle(item)}
                   </Typography>
 
                   <Typography variant="body2" color={theme.palette.text.secondary}>
-                    {item.price?.toFixed(2)} ₺
+                    {getPrice(item).toFixed(2)} ₺
                   </Typography>
                 </Box>
               </Box>
 
-              {/* Sağ taraf (miktar + silme) */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <IconButton onClick={() => dispatch(decreaseQuantity(item))}>
+                <IconButton onClick={() => handleDecrease(item)}>
                   <RemoveIcon />
                 </IconButton>
 
-                <Typography fontWeight="bold">{item.quantity}</Typography>
+                <Typography fontWeight="bold">{Number(item.quantity) || 0}</Typography>
 
-                <IconButton onClick={() => dispatch(addToBasket(item))}>
+                <IconButton onClick={() => handleAdd(item)}>
                   <AddIcon />
                 </IconButton>
 
-                <IconButton onClick={() => dispatch(removeFromBasket(item))}>
+                <IconButton onClick={() => handleRemove(item)}>
                   <DeleteIcon />
                 </IconButton>
               </Box>
@@ -155,26 +287,24 @@ function BasketComp() {
             </Typography>
 
             <Button
-              onClick={handleClearBasket}
+              onClick={handleClear}
               fullWidth
               variant="contained"
-              sx={{
-                mt: 1,
-                textTransform: "none",
-              }}
+              sx={{ mt: 1, textTransform: "none" }}
             >
               Sepeti Boşalt
             </Button>
-            {addedToBasket.length > 0 && (
-  <Button
-    onClick={() => navigate('/checkout')}
-    fullWidth
-    variant="contained"
-    sx={{ mt: 1, textTransform: "none" }}
-  >
-    Ödeme Adımına Geç
-  </Button>
-)}
+
+            {basketList.length > 0 && (
+              <Button
+                onClick={() => navigate('/checkout')}
+                fullWidth
+                variant="contained"
+                sx={{ mt: 1, textTransform: "none" }}
+              >
+                Ödeme Adımına Geç
+              </Button>
+            )}
           </Paper>
         </>
       )}

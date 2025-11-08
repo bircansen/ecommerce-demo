@@ -3,7 +3,10 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedProduct } from "../redux/ProductsSlice";
-import { addToBasket } from "../redux/BasketSlice";
+import {
+  addToBasketLocal,
+  addToBasketServer,
+} from "../redux/BasketSlice";
 import { toggleFavorite } from "../redux/FavoritesSlice";
 import {
   IconButton,
@@ -27,6 +30,8 @@ const ProductDetails = () => {
   );
   const favorites = useSelector((s) => s.favorites.items);
 
+  const user = useSelector((s) => s.user?.user); // ✅ kullanıcı bilgisi
+
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMsg, setAlertMsg] = useState("");
 
@@ -44,7 +49,6 @@ const ProductDetails = () => {
         console.error("Tek ürün hatası:", err);
       }
     };
-
     if (!products.length) fetch();
   }, [id, products.length, dispatch]);
 
@@ -109,15 +113,23 @@ const ProductDetails = () => {
     selectedProduct.product_description ||
     "Açıklama yok.";
 
+  // ✅ DÜZELTİLMİŞ SEPET EKLEME
   const addBasket = () => {
-    dispatch(
-      addToBasket({
-        id: productId,
-        title,
-        price,
-        image: imageSrc,
-      })
-    );
+    const userId = user?._id ?? user?.id; // ✅ aynı düzeltme
+
+    if (userId) {
+      dispatch(addToBasketServer({ userId, productId }));
+    } else {
+      dispatch(
+        addToBasketLocal({
+          id: productId,
+          title,
+          price,
+          image: imageSrc,
+        })
+      );
+    }
+
     setAlertMsg("Sepete eklendi");
     setAlertOpen(true);
   };
@@ -154,19 +166,17 @@ const ProductDetails = () => {
       <Typography sx={{ mt: 2 }}>{description}</Typography>
 
       <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
-       <IconButton onClick={addBasket}>
-  <ShoppingCartIcon htmlColor="#062936" />
-</IconButton>
+        <IconButton onClick={addBasket}>
+          <ShoppingCartIcon htmlColor="#062936" />
+        </IconButton>
 
-<IconButton onClick={toggleFav}>
-  {isFavorite ? (
-    <FavoriteIcon htmlColor="#ff0000" />   // DOLU KIRMIZI
-  ) : (
-    <FavoriteBorderIcon htmlColor="#ff0000" />  // BOŞ KIRMIZI
-  )}
-</IconButton>
-
-
+        <IconButton onClick={toggleFav}>
+          {isFavorite ? (
+            <FavoriteIcon htmlColor="#ff0000" />
+          ) : (
+            <FavoriteBorderIcon htmlColor="#ff0000" />
+          )}
+        </IconButton>
       </Box>
 
       <Snackbar

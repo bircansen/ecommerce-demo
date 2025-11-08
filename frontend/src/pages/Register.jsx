@@ -1,3 +1,4 @@
+// Register.jsx
 import { Box, Card, CardContent, Typography, TextField, Button, CircularProgress, Snackbar, Alert } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,7 +10,6 @@ import { useState } from "react";
 export default function Register() {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((store) => store.user);
-
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const RegisterSchema = Yup.object().shape({
@@ -21,9 +21,7 @@ export default function Register() {
       .required("Şifreyi tekrar giriniz"),
   });
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
   return (
     <Box
@@ -46,14 +44,12 @@ export default function Register() {
             onSubmit={(values, { resetForm }) => {
               const { name, email, password } = values;
               dispatch(registerUser({ name, email, password }))
-                .unwrap() // RTK Query veya createAsyncThunk kullanıyorsan
+                .unwrap()
                 .then(() => {
-                  setSnackbarOpen(true); // kayıt başarılı ise Snackbar aç
-                  resetForm(); // formu temizle
+                  setSnackbarOpen(true);
+                  resetForm();
                 })
-                .catch(() => {
-                  // hata yönetimi zaten error ile gösteriliyor
-                });
+                .catch(() => {});
             }}
           >
             {({ values, errors, touched, handleChange, handleBlur, handleSubmit }) => (
@@ -108,9 +104,9 @@ export default function Register() {
                   helperText={touched.confirmPassword && errors.confirmPassword}
                 />
 
-                {error && <Typography color="error">{error}</Typography>}
+                {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
 
-                <Button variant="contained" fullWidth sx={{ mt: 2 }} type="submit">
+                <Button variant="contained" fullWidth sx={{ mt: 2 }} type="submit" disabled={loading}>
                   {loading ? <CircularProgress size={24} /> : "Kayıt Ol"}
                 </Button>
               </Form>
@@ -123,7 +119,6 @@ export default function Register() {
         </CardContent>
       </Card>
 
-      {/* Snackbar */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}

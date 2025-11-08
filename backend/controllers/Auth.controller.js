@@ -5,24 +5,37 @@ import jwt from "jsonwebtoken";
 // ✅ Kayıt ol
 export const register = async (req, res) => {
   try {
-    const { name, email, password, profileImage } = req.body;
+    const { name, email, password } = req.body; // profileImage artık frontend’den gelmiyor
 
+    // email kontrol
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: "Email zaten kayıtlı" });
 
+    // şifre hash
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // yeni user
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
-      profileImage: profileImage || "/avatars/avatar1.png",
+      profileImage: "/avatars/avatar1.png", // default
     });
 
     await newUser.save();
 
+    // ✅ TOKEN OLUŞTUR
+    const token = jwt.sign(
+      { id: newUser._id, name: newUser.name, email: newUser.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // frontend’in beklediği format
     res.status(201).json({
       message: "Kayıt başarılı",
+      token, // artık token gönderiliyor
       user: {
         id: newUser._id,
         name: newUser.name,
@@ -31,8 +44,22 @@ export const register = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Sunucu hatası" });
+    console.error("REGISTER ERROR:", err);
+
+    // duplicate key veya validation error kontrolü
+    if (err.code && err.code === 11000) {
+      const field = Object.keys(err.keyValue)[0];
+      return res.status(400).json({ message: `${field} zaten kayıtlı` });
+    }
+
+    if (err.name === "ValidationError") {
+      const messages = Object.values(err.errors).map((e) => e.message);
+      return res
+        .status(400)
+        .json({ message: "Doğrulama hatası", errors: messages });
+    }
+
+    return res.status(500).json({ message: "Sunucu hatası" });
   }
 };
 

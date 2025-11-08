@@ -6,13 +6,15 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     profileImage: { type: String, default: "/avatars/avatar1.png" },
-    favourites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }], // ✅ eklendi
+    favourites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+
+    // ✅ Sepet kullanıcıya ait olacak
     cart: [
       {
         productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
         quantity: { type: Number, default: 1 },
       },
-    ], // ✅ sepete ekledik
+    ],
   },
   { timestamps: true }
 );

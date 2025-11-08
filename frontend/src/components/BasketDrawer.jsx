@@ -15,6 +15,7 @@ export default function BasketDrawer() {
 
   return (
     <>
+      {/* ✅ Sepet Butonu */}
       <IconButton
         onClick={toggleDrawer(true)}
         size="large"
@@ -29,17 +30,20 @@ export default function BasketDrawer() {
         </Badge>
       </IconButton>
 
+      {/* ✅ Drawer (Yeni MUI v6 slotProps ile düzeltilmiş) */}
       <Drawer
         anchor="right"
         open={open}
         onClose={toggleDrawer(false)}
-        PaperProps={{
-          sx: {
-            width: { xs: "90vw", sm: 420 },
-            backgroundColor: theme.palette.background.default,
-            color: theme.palette.text.primary,
-            borderLeft: `1px solid ${theme.palette.divider}`,
-            boxShadow: "-8px 0 20px rgba(0,0,0,0.3)",
+        slotProps={{
+          paper: {
+            sx: {
+              width: { xs: "90vw", sm: 420 },
+              backgroundColor: theme.palette.background.default,
+              color: theme.palette.text.primary,
+              borderLeft: `1px solid ${theme.palette.divider}`,
+              boxShadow: "-8px 0 20px rgba(0,0,0,0.3)",
+            },
           },
         }}
       >

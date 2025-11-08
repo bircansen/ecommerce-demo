@@ -1,9 +1,10 @@
+// Login.jsx
 import { Box, TextField, Button, Typography } from "@mui/material";
 import { useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/UserSlice";
 import { useNavigate } from "react-router-dom";
 
@@ -16,6 +17,7 @@ function Login() {
   const { mode } = useContext(ThemeContext);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { loading, error } = useSelector((store) => store.user);
 
   return (
     <Box
@@ -47,9 +49,7 @@ function Login() {
           onSubmit={(values) => {
             dispatch(loginUser(values))
               .unwrap()
-              .then(() => {
-                navigate("/");
-              })
+              .then(() => navigate("/"))
               .catch((err) => console.log("Login error:", err));
           }}
         >
@@ -80,8 +80,10 @@ function Login() {
                 sx={{ mb: 2 }}
               />
 
-              <Button fullWidth variant="contained" color="primary" type="submit">
-                Giriş Yap
+              {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+
+              <Button fullWidth variant="contained" color="primary" type="submit" disabled={loading}>
+                {loading ? "Yükleniyor..." : "Giriş Yap"}
               </Button>
             </Form>
           )}

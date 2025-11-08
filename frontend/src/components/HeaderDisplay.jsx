@@ -11,7 +11,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Avatar from "@mui/material/Avatar";
 
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../redux/UserSlice";
+import { logoutUser } from "../redux/UserSlice";
 import {
   clearSearchResults,
   searchLocalProducts,
@@ -30,7 +30,7 @@ function HeaderDisplay() {
   const dispatch = useDispatch();
 
   // 🧺 Sepet bilgisi
-  const addedToBasket = useSelector((state) => state.basket.addedToBasket || []);
+  const addedToBasket = useSelector((state) => state.basket.addToBasket || []);
   const totalItems = addedToBasket.length;
 
   // 👤 Kullanıcı bilgisi
@@ -61,7 +61,7 @@ function HeaderDisplay() {
   const handleMenuClose = () => setAnchorEl(null);
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutUser());
     handleMenuClose();
     navigate("/");
   };

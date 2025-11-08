@@ -84,13 +84,14 @@ export default function ProfileForm({ user, onProfileUpdate, onAvatarChange }) {
         fullWidth
       />
 
-      <TextField
-        label="E-posta"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        fullWidth
-      />
+     <TextField
+  label="E-posta"
+  value={formData.email}
+  fullWidth
+  disabled
+/>
+
+
 
       <Typography variant="subtitle1" sx={{ mt: 1 }}>
         Avatar Seç:

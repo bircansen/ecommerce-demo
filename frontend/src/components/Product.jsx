@@ -14,7 +14,10 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleFavorite } from "../redux/FavoritesSlice";
-import { addToBasket } from "../redux/BasketSlice";
+import {
+  addToBasketLocal,
+  addToBasketServer,
+} from "../redux/BasketSlice";
 import { useNavigate } from "react-router-dom";
 
 export default function Product({
@@ -29,11 +32,21 @@ export default function Product({
 }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const user = useSelector((s) => s.user?.user);
   const favorites = useSelector((s) => s.favorites.items);
+
   const isFavorite = favorites.some(
     (f) => String(f._id || f.id || f.asin) === String(productId)
   );
+
+  // ✅ FİYAT DÜZELTME — string veya farklı formatlardan normalize eder
+  const finalPrice =
+    Number(price) ||
+    Number(price?.value) ||
+    Number(price?.current_price) ||
+    Number(price?.raw_price) ||
+    Number(price?.amount) ||
+    0;
 
   // ✅ Görsel seçimi
   let finalImage = image;
@@ -63,9 +76,19 @@ export default function Product({
     dispatch(toggleFavorite(productId));
   };
 
+  // ✅ DÜZELTİLMİŞ SEPET EKLEME
   const handleAddBasket = (e) => {
     e.stopPropagation();
-    dispatch(addToBasket({ id: productId, title, price, image: finalImage }));
+
+    const userId = user?._id ?? user?.id;
+
+    if (userId) {
+      dispatch(addToBasketServer({ userId, productId }));
+    } else {
+      dispatch(
+        addToBasketLocal({ id: productId, title, price: finalPrice, image: finalImage })
+      );
+    }
   };
 
   return (
@@ -81,7 +104,6 @@ export default function Product({
         "&:hover": { transform: "translateY(-4px)", boxShadow: 6 },
       }}
     >
-      {/* Üst ikonlar */}
       <Box
         sx={{
           position: "absolute",
@@ -162,11 +184,9 @@ export default function Product({
           {description || "Açıklama bulunmuyor."}
         </Typography>
 
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: "bold", mt: 1 }}
-        >
-          {price ? `${price} ₺` : "Fiyat yok"}
+        {/* ✅ Fiyat düzeltildi */}
+        <Typography variant="subtitle1" sx={{ fontWeight: "bold", mt: 1 }}>
+          {finalPrice > 0 ? `${finalPrice.toFixed(2)} ₺` : "Fiyat yok"}
         </Typography>
       </CardContent>
     </Card>

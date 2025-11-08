@@ -1,4 +1,5 @@
-import { Router } from "express";
+// routes/Basket.routes.js
+import express from "express";
 import {
   getBasket,
   addToBasket,
@@ -7,12 +8,15 @@ import {
   clearBasket,
 } from "../controllers/Basket.controller.js";
 
-const router = Router();
+const router = express.Router();
 
-router.get("/:userId", getBasket);
+// ✅ 1) Önce POST endpointlerini tanımlıyoruz
 router.post("/add", addToBasket);
 router.post("/decrease", decreaseQuantity);
 router.post("/remove", removeFromBasket);
 router.post("/clear", clearBasket);
+
+// ✅ 2) EN SON GET route geliyor
+router.get("/:userId", getBasket);
 
 export default router;
